@@ -3,8 +3,6 @@
 Created on Sun Feb  5 18:20:33 2017
 
 @author: brandonjamesmcmahan
-Project: Create a Neural Network to learn target function
-in lecture 10 slide 9 of the Learning from Data Caltech course
 """
 import numpy as np
 #import matplotlib.pyplot as plt
