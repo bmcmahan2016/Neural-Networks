@@ -13,7 +13,7 @@ import random
 
 
 
-#define the target function
+#define the target function--this target function is for non-linear classification--currently disabled
 #def target_f(x1,x2):
 #    #plot the target function
 #    plt.figure(1)
