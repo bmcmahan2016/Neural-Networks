@@ -8,12 +8,10 @@ in lecture 10 slide 9 of the Learning from Data Caltech course
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from neuroide import *
 
 
-
-
-
-#define the target function--this target function is for non-linear classification--currently disabled
+#define the target function--this is for non-linear target functions (disabled)
 #def target_f(x1,x2):
 #    #plot the target function
 #    plt.figure(1)
@@ -70,49 +68,41 @@ for i in range(0,N):
 #classify training data
 y = target_f(xd[1],xd[2])
 
+
+#construct a single layer neural network with logistic neurons
 n1 = Neuron('logistic')
 n2 = Neuron('logistic')
 n3 = Neuron('logistic')
-#n4 = Neuron('logistic')
-#n5 = Neuron('logistic')
-#n6 = Neuron('logistic')
-#n7 = Neuron('logistic')
 
-#backpropogation algorithm fails for this input
-#need to debug backpropogation algorithm for this input
 neurons = [[n1,n2],[n3]]
-
 my_net = Network(neurons)
 
-#x = [1,1]
-#my_net.feed_input_layer(x)
-#my_net.forward_prop()
-my_net.backpropogate([1])
 
 
+#train the network
+for t in range(0,1000):
+    #choose a random data point
+    i = random.random()*N
+    i = int(i)
+    #send that point into net
+    my_net.feed_input_layer([xd[1][i],xd[2][i]])
+    my_net.forward_prop()
+    #use SGD and backpropogation to update weights
+    my_net.backpropogate([y[i]])
+#end network training
 
+#show how well network did
+plt.figure(2)
+for i in range(N):
+    my_net.feed_input_layer([xd[1][i],xd[2][i]])
+    my_net.forward_prop()
+    clsfctn = my_net.get_output()
+    clsfctn = clsfctn[0]
+    if np.round(clsfctn) == 1:
+        plt.scatter(xd[1][i],xd[2][i],c='r')
+    else:
+        plt.scatter(xd[1][i],xd[2][i],c='b')
+plt.title('Neural Networks Classification of Data')
+plt.xlabel('X1')
+plt.ylabel('X2')
 
-
-
-#display initial network
-
-#w.display()
-
-#send in an input
-for tt in range(0,10):
-    x = Neurons(layers)
-    for t in range(0,1000):
-        i = random.random()*N
-        i = int(i)
-        my_net.feed_input_layer([xd[1][i],xd[2][i]])
-        my_net.forward_prop()
-        #print "Sending input to neural network"
-        #x.Show_Status()
-
-        #test backpropogation
-        #print "\nDelta is " #%x.compute_delta(1)
-        #print "Begining backpropagation..."
-        my_net.backpropogate([y[i]])
-    xxx = my_net.get_output()
-
-    print "neural net: %f ans: %f" %(xxx[0],y[i])
