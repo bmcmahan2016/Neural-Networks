@@ -1,13 +1,14 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Sun Mar 12 18:14:32 2017
+Updated on Sat April 15 2017
 
 @author: Brandon McMahan
 NeuroIDE (neuroide)
 Neural Network Development Module
-Description: This provides module provides defines classess that allow for easy creation and implementation of Neural Networks 
+Description: This provides an environment for creating neuron and network objects 
 """
+
 import numpy as np
 
 #BEGIN NEURON CLASS
@@ -34,7 +35,9 @@ class Neuron(object):
 #BEGIN NETWORK CLASS
 class Network(object): 
     #BEGIN CONSTRUCTION OF NETWORK OBJECT
-    def __init__(self,neurons):
+    def __init__(self,neurons,loss='squared'):
+        #will later determine the type of error function to use
+        self.loss = loss
         #create a network with neurons in each layer
         self.neurons = []
         self.w = []
@@ -56,9 +59,22 @@ class Network(object):
                 self.dE_by_dw.append(np.array([]))
     #END CONSTRUCTION OF NETWORK OBJECT
     
+    #this method will randomize the weight matrix
+    def randW(self):
+        #loop over all layers greater than zero
+        for l in range(1,len(self.neurons)):
+            #loop over all projections to next layer up
+            for j in range(len(self.neurons[l])):
+                #loop over every neuron in layer l-1
+                #must add one as first row is bias and has no neuron in the layer below
+                for i in range(len(self.neurons[l-1])+1):
+                    self.w[l][i,j] = np.random.random()*self.w[l][i,j]
+            
+        pass
+    
     def feed_input_layer(self,x):
         for i in range(len(self.neurons[0])):
-            neurons[0][i].state = x[i]
+            self.neurons[0][i].state = x[i]
     
     #method to forward propagate input through the network
     #BEGIN FORWARD PROPOGATION
@@ -87,8 +103,11 @@ class Network(object):
     def error_fcn(self,t):
         #first we need to get the network output
         self.get_output()
-        self.error = 0.5*(t - self.y)**2    #returns error for each neuron in output layer
-        print self.error
+        if self.loss == 'squared':
+            self.error = 0.5*(t - self.y)**2    #returns error for each neuron in output layer
+        elif self.loss == 'cross-entropy':
+            self.error = t*np.log10(self.y)    #returns error for each neuron in output layer
+    #print self.error
     #end error function
     
     #method to backpropagate the output layer
@@ -116,10 +135,6 @@ class Network(object):
     #END BACKPROPOGATE FOR OUTPUT LAYER
     
     def back_one(self,l):
-        #get partial derivitives for layer l
-        #for j in range(len(self.layer[l+1])):
-        #    dE_by_dz_above[j] = self.layer[l+1][j].state()*(1-self.layer[l+1][j].state())*dE_by_dy_above[j]
-        
         #loop over all neurons in the current layer to get dE/dy for each neuron in this layer
         for i in range(len(self.neurons[l])): 
             #print "Computing partials for neuron %.2d in layer %.2d" %(i+1, l)
@@ -137,7 +152,7 @@ class Network(object):
                     self.dE_by_dw[l][i,j] = 1*self.dE_by_dz[l][j]
                 else:   #input from another neuron
                     self.dE_by_dw[l][i,j] = self.neurons[l-1][i-1].state*self.dE_by_dz[l][j]    #swaped l and j in last term
-
+        
     def backpropogate(self,t):
         #initialize all derivitives
         self.dE_by_dy = []          #this will become a list of np arrays
@@ -162,7 +177,7 @@ class Network(object):
                 #for each neuron i in layer l, loop through all inputs (neurons in layer below AND bias)
                 for j in range(len(self.neurons[l])):
                     #may want to make learning rate more general in future
-                    self.w[l][i,j] = self.w[l][i,j] - 0.1*self.dE_by_dw[l][i,j]
+                    self.w[l][i,j] = self.w[l][i,j] - 0.5*self.dE_by_dw[l][i,j]
     #END BACKPROPOGATION
     
     #method to get the output of the network
