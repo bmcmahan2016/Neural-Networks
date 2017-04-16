@@ -70,7 +70,23 @@ class Network(object):
                 for i in range(len(self.neurons[l-1])+1):
                     self.w[l][i,j] = np.random.random()*self.w[l][i,j]
             
-        pass
+    #this method will allow for realtime visualization of weight changes
+    #call to function must include which layer of weight matrix to plot
+    #WARNING THIS MAY BE USED FOR DIAGNOSTICS BUT WILL SLOW DOWN TRAINING
+    def dynamicWeights(self,layer):
+        #if an interactive plot is not enabled create one
+        if not self.interactiveEnabled:
+            plt.ion()
+            self.interactiveEnabled = 1;
+            plt.figure(10)
+            xtitle = 'Layer %.2d Neurons' %(layer-1)
+            ytitle = 'Layer %.2d Nuerons' %layer
+            plt.xlabel(xtitle)
+            plt.ylabel(ytitle)
+        weight_surf = self.w[layer]
+        plt.imshow(weight_surf)
+        plt.pause(0.0001)
+
     
     def feed_input_layer(self,x):
         for i in range(len(self.neurons[0])):
